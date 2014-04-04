@@ -78,6 +78,15 @@ int do_uinput(int fd, unsigned short key, int pressed,
   if(write(fd,&event,sizeof(event)) != sizeof(event))
     perror("Writing event");
 
+  // Separate sync event as some uinput implementations only support single
+  // event writes.
+  memset(&event, 0 , sizeof(event));
+  event.type = EV_SYN;
+  if(write(fd,&event,sizeof(event)) != sizeof(event))
+    perror("Writing event sync");
+
+  fdatasync(fd);
+
   return 1;
 }
 
